@@ -1,32 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Technico.Models;
 
-namespace Technico.Data;
-
-public class TechnicoDbContext: DbContext
+namespace Technico.Data
 {
-    public DbSet<Owner> Owners { get; set; }
-    public DbSet<Property> Properties { get; set; }
-    public DbSet<Repair> Repairs { get; set; }
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public class TechnicoDbContext : DbContext
     {
-        string connectionString = "Data Source=(local)\\SQLEXPRESS;Initial Catalog=Technico;Integrated Security=True;TrustServerCertificate=True;";
-        optionsBuilder.UseSqlServer(connectionString);
-    }
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder
-            .Entity<Owner>()
-            .HasIndex(o => o.VatNumber)
-            .IsUnique();
+        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Property> Properties { get; set; }
+        public DbSet<Repair> Repairs { get; set; }
+        
+        public TechnicoDbContext(DbContextOptions<TechnicoDbContext> options)
+            : base(options)
+        {
+        }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<Owner>()
+                .HasIndex(o => o.VatNumber)
+                .IsUnique();
 
-        modelBuilder
-            .Entity<Property>()
-            .HasIndex(p => p.IdentificationNumber)
-            .IsUnique();
+            modelBuilder
+                .Entity<Property>()
+                .HasIndex(p => p.IdentificationNumber)
+                .IsUnique();
+        }
     }
-    
-    
 }
