@@ -13,6 +13,5 @@ public class Property
     public PropertyType Type { get; set; }
 
     public List<Owner> Owners { get; set; } = [];
-
-    public List<Repair> Repairs { get; set; } = [];
+    
 }

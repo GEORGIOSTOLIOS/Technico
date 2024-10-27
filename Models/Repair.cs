@@ -9,7 +9,7 @@ public class Repair
     public DateTime DateTime { get; set; } 
     
     public string? Description { get; set; }
-
+    
     public string Address { get; set; } = string.Empty;
     
     public Status Status { get; set; }
@@ -17,8 +17,5 @@ public class Repair
     public decimal Cost { get; set; }
 
     public Owner Owner { get; set; } = new Owner(){VatNumber = "123"};
-
-    public Property Property { get; set; } = new Property();
-
-
+    
 }
