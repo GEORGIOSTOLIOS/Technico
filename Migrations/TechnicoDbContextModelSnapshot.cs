@@ -127,7 +127,8 @@ namespace Technico.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");

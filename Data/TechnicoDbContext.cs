@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Technico.Models;
 
 namespace Technico.Data
@@ -13,7 +14,17 @@ namespace Technico.Data
             : base(options)
         {
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.LogTo(Console.WriteLine, LogLevel.Error);
+            optionsBuilder.UseSqlServer("Data Source=(local)\\SQLEXPRESS;Initial Catalog=Technico;Integrated Security=True;TrustServerCertificate=True;");
+        }
+             
         
+            
+        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
