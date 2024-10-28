@@ -21,6 +21,8 @@ class Program
                 
                 services.AddScoped<IOwnerRepository, OwnerRepository>();
                 services.AddScoped<IOwnerService, OwnerServiceImpl>();
+                services.AddScoped<IPropertyRepository, PropertyRepository>();
+                services.AddScoped<IPropertyService, PropertyServiceImpl>();
             })
             .Build();
         
@@ -32,6 +34,7 @@ class Program
         }
         
         var ownerService = host.Services.GetRequiredService<IOwnerService>();
+        var propertyService = host.Services.GetRequiredService<IPropertyService>();
         
         var ownerCreated = new Owner()
         {
@@ -70,7 +73,7 @@ class Program
         var ownerFoundAgain = await ownerService.GetOwner(1);
         Console.WriteLine($"Owner found: {ownerFoundAgain.Value.FirstName} {ownerFoundAgain.Value.LastName} {ownerFoundAgain.Value.VatNumber}");
 
-        var deleteOwner = await ownerService.DeleteOwner(ownerCreated);
+        /*var deleteOwner = await ownerService.DeleteOwner(ownerCreated);
         var owner = await ownerService.GetOwner(1);
         if (owner.IsFailure)
         {
@@ -79,8 +82,71 @@ class Program
         else
         {
             Console.WriteLine("lathos");
-        }
+        }*/
+
+        var property = new Property()
+        {
+            IdentificationNumber = "ID123456",
+            Address = "456 Elm St",
+            YearOfConstruction = 2005,
+            Type = 0,
+            Owners = new List<Owner>
+            {
+               
+            }
+        };
+
+        var propertyCreated = propertyService.CreateProperty(property, new List<string>() { "12345678910" });
+        Console.WriteLine(propertyCreated.Result);
         
+        var propertyFound = propertyService.GetProperty(1);
+        Console.WriteLine(propertyFound.Result);
+        foreach (var owner in propertyFound.Result.Value.Owners.OrderBy(o => o.VatNumber))
+        {
+            Console.WriteLine($"Owner: {owner}");
+        }
+        Console.WriteLine("Owners: " + 
+                          String.Join(", ", propertyFound.Result.Value.Owners.OrderBy(o => o.VatNumber)));
+        
+         
+        
+        var ownerFoundAgain1 = await ownerService.GetOwner(1);
+        Console.WriteLine($"Owner found: {ownerFoundAgain1.Value.Properties.Count}");
+        foreach (var property1 in ownerFoundAgain1.Value.Properties.OrderBy(p => p.YearOfConstruction))
+        {
+            Console.WriteLine($"Owner: {property1}");
+        }
+
+       var property2 = new Property
+       {
+            IdentificationNumber = "ID123456",
+            Address = "456 Elm St",
+            YearOfConstruction = 2008,
+            Type = PropertyType.Maisonet,
+            Owners = new List<Owner>
+            {
+               
+            }
+        };
+        var updateProperty = propertyService.UpdateProperty(property, property2);
+        Console.WriteLine(updateProperty.Result);
+        var getProperty = propertyService.GetProperty(1);
+        Console.WriteLine(getProperty.Result);
+        
+        var deleteProperty = await propertyService.DeleteProperty(property);
+        var propertyfound = await propertyService.GetProperty(1);
+        if (propertyFound.Result.IsSuccess)
+        {
+            Console.WriteLine("property deleted");
+        }
+        else
+        {
+            Console.WriteLine("lathos");
+            Console.WriteLine(propertyFound.Result);
+        }
+        Console.WriteLine(propertyFound.Result);
+        var propertyfoundagain = await propertyService.GetProperty(1);
+        Console.WriteLine(propertyfoundagain.IsFailure);
         
         Console.ReadLine();
     }
