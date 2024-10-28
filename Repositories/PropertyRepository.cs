@@ -18,7 +18,7 @@ public class PropertyRepository:IPropertyRepository
         return await _context.Properties.OrderBy(p => p.YearOfConstruction).ToListAsync();
     }
 
-    public async Task<Property> GetProperty(int id)
+    public async Task<Property?> GetProperty(int id)
     {
         return await _context.Properties.Where(p => p.Id == id).FirstOrDefaultAsync();
     }
@@ -28,12 +28,13 @@ public class PropertyRepository:IPropertyRepository
         return await _context.Properties.AnyAsync(p => p.Id == id);
     }
 
-    public async Task<bool> CreateProperty(Property property, PropertyType propertyType, List<string> propertyOwnersVatNumbers)
+    public async Task<bool> CreateProperty(Property property, List<string> propertyOwnersVatNumbers)
     {
         var owners = _context.Owners
             .Where(owner => propertyOwnersVatNumbers.Contains(owner.VatNumber))
             .ToList();
-
+        if (owners.Count == 0) return false;
+        
         property.Owners = owners;
         _context.Add(property);
 

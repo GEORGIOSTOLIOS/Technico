@@ -6,11 +6,11 @@ public interface IPropertyRepository
 {
     public Task<List<Property>> GetProperties();
 
-    public Task<Property> GetProperty(int id);
+    public Task<Property?> GetProperty(int id);
     
     public Task<bool> PropertyExists(int id);
 
-    Task<bool> CreateProperty(Property property, PropertyType propertyType, List<string> propertyOwnersVatNumbers);
+    Task<bool> CreateProperty(Property property, List<string> propertyOwnersVatNumbers);
   
     Task<bool> UpdateProperty( Property property);
     Task<bool> DeleteProperty(Property property);
