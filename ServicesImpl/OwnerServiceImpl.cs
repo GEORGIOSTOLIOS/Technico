@@ -46,24 +46,14 @@ public class OwnerServiceImpl: IOwnerService
 
     public  async Task<Result<OwnerResponse>> UpdateOwner(Owner oldOwner, Owner newOwner)
     {
-        
-
         var ownerToUpdate = await _ownerRepository.GetOwner(oldOwner.Id);
         if (ownerToUpdate == null)
         {
             return Result.Failure<OwnerResponse>("The owner you want to update was not found");
         }
-        ownerToUpdate.FirstName = newOwner.FirstName;
-        ownerToUpdate.LastName = newOwner.LastName;
-        ownerToUpdate.VatNumber = newOwner.VatNumber;
-        ownerToUpdate.Address = newOwner.Address;
-        ownerToUpdate.Properties = newOwner.Properties;
-        ownerToUpdate.Email = newOwner.Email;
-        ownerToUpdate.Password = newOwner.Password;
-        ownerToUpdate.Repairs = newOwner.Repairs;
-        ownerToUpdate.Type = newOwner.Type;
-        ownerToUpdate.PhoneNumber = newOwner.PhoneNumber;
-
+        
+        ownerToUpdate.ChangeTo(newOwner);
+        
         var ownerUpdated = await _ownerRepository.UpdateOwner(ownerToUpdate);
         
         if (!ownerUpdated)
@@ -86,7 +76,7 @@ public class OwnerServiceImpl: IOwnerService
         var ownerDeleted = await _ownerRepository.DeleteOwner(ownerToDelete);
         if (ownerDeleted)
         {
-            return Result.Success("Owner succesufully deleted");
+            return Result.Success("Owner successfully deleted");
         }
 
         return Result.Failure("Delete failed");
