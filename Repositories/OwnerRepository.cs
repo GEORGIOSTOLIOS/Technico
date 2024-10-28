@@ -23,14 +23,14 @@ public class OwnerRepository: IOwnerRepository
         return await _context.Owners.Where(o => o.Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task<bool> OwnerExists(int ownerId, string vatNumber)
+    public async Task<bool> OwnerExists( string vatNumber)
     {
-        return await _context.Owners.AnyAsync(o => o.Id == ownerId || o.VatNumber.Equals(vatNumber));
+        return await _context.Owners.AnyAsync(o =>  o.VatNumber.Equals(vatNumber.Trim()));
     }
 
     public async Task<bool> CreateOwner(Owner owner)
     {
-        if (!OwnerExists(owner.Id, owner.VatNumber).Result)
+        if (!OwnerExists( owner.VatNumber).Result)
         {
             _context.Add(owner);
         }
@@ -46,7 +46,7 @@ public class OwnerRepository: IOwnerRepository
 
     public async Task<bool> DeleteOwner(Owner owner)
     {
-        if (OwnerExists(owner.Id, owner.VatNumber).Result)
+        if (OwnerExists( owner.VatNumber).Result)
         {
             _context.Remove(owner);
         }
