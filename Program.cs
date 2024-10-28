@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Technico.Data;
 using Technico.IRepositories;
 using Technico.Iservices;
@@ -14,140 +16,266 @@ class Program
     static async Task Main(string[] args)
     {
         var host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((context, config) =>
+            {
+                // Load the configuration from appsettings.json
+                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            })
             .ConfigureServices((context, services) =>
             {
+                // Configure TechnicoDbContext using the connection string from appsettings.json
                 services.AddDbContext<TechnicoDbContext>(options =>
-                    options.UseSqlServer("Data Source=(local)\\SQLEXPRESS;Initial Catalog=Technico;Integrated Security=True;TrustServerCertificate=True;"));
+                {
+                    options.UseSqlServer(context.Configuration.GetConnectionString("TechnicoDb"));
+
+                    
+                    options.LogTo(Console.WriteLine, LogLevel.Warning);
+                });
                 
                 services.AddScoped<IOwnerRepository, OwnerRepository>();
                 services.AddScoped<IOwnerService, OwnerServiceImpl>();
                 services.AddScoped<IPropertyRepository, PropertyRepository>();
                 services.AddScoped<IPropertyService, PropertyServiceImpl>();
+                services.AddScoped<IRepairRepository, RepairRepository>();
+                services.AddScoped<IRepairService, RepairServiceImpl>();
             })
             .Build();
-        
+
         using (var scope = host.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<TechnicoDbContext>();
-            await dbContext.Database.EnsureDeletedAsync(); 
-            await dbContext.Database.MigrateAsync(); 
+            await dbContext.Database.EnsureDeletedAsync();
+            await dbContext.Database.MigrateAsync();
         }
-        
+
         var ownerService = host.Services.GetRequiredService<IOwnerService>();
         var propertyService = host.Services.GetRequiredService<IPropertyService>();
-        
-        var ownerCreated = new Owner()
-        {
-            VatNumber = "123456789",
-            FirstName = "John",
-            LastName = "Doe",
-            Address = "123 Main St",
-            PhoneNumber = "123-456-7890",
-            Email = "john.doe@example.com"
-        };
+        var repairService = host.Services.GetRequiredService<IRepairService>();
 
-        var result = await ownerService.CreateOwner(ownerCreated);
-        if (result.IsSuccess)
-        {
-            Console.WriteLine($"Owner created: {result.Value.FirstName} {result.Value.LastName} {ownerCreated.Id}");
-        }
-        else
-        {
-            Console.WriteLine($"Error: {result.Error}");
-        }
 
-        var ownerFound = await ownerService.GetOwner(1);
-        Console.WriteLine($"Owner found: {ownerFound.Value.FirstName} {ownerFound.Value.LastName} {ownerFound.Value.VatNumber}");
+        await CreateOwnerExample();
+        await GetOwnerExample();
+        await UpdateOwnerExample();
+        // await DeleteOwnerExample();
 
-        var updatedOwner = ownerService.UpdateOwner(ownerCreated, new Owner()
-        {
-            VatNumber = "12345678910",
-            FirstName = "George",
-            LastName = "Doe",
-            Address = "123 Main St",
-            PhoneNumber = "123-456-7890",
-            Email = "john.doe@example.com"
-        });
-        Console.WriteLine($"updated owner: {updatedOwner.Result.Value.FirstName} {updatedOwner.Result.Value.LastName} {updatedOwner.Result.Value.VatNumber}");
-        
-        var ownerFoundAgain = await ownerService.GetOwner(1);
-        Console.WriteLine($"Owner found: {ownerFoundAgain.Value.FirstName} {ownerFoundAgain.Value.LastName} {ownerFoundAgain.Value.VatNumber}");
+        await CreatePropertyExample();
+        await GetPropertyExample();
+        await UpdatePropertyExample();
+        await DeletePropertyExample();
 
-        /*var deleteOwner = await ownerService.DeleteOwner(ownerCreated);
-        var owner = await ownerService.GetOwner(1);
-        if (owner.IsFailure)
-        {
-            Console.WriteLine("Owner deleted");
-        }
-        else
-        {
-            Console.WriteLine("lathos");
-        }*/
+        await CreateRepairExample();
+        await GetRepairExample();
+        await UpdateRepairExample();
+        await DeleteRepairExample();
 
-        var property = new Property()
+
+        async Task CreateOwnerExample()
         {
-            IdentificationNumber = "ID123456",
-            Address = "456 Elm St",
-            YearOfConstruction = 2005,
-            Type = 0,
-            Owners = new List<Owner>
+            var owner = new Owner
             {
-               
-            }
-        };
+                VatNumber = "12345678910",
+                FirstName = "Alice",
+                LastName = "Smith",
+                Address = "123 Elm St",
+                PhoneNumber = "123-456-7890",
+                Email = "alice.smith@example.com"
+            };
 
-        var propertyCreated = propertyService.CreateProperty(property, new List<string>() { "12345678910" });
-        Console.WriteLine(propertyCreated.Result);
-        
-        var propertyFound = propertyService.GetProperty(1);
-        Console.WriteLine(propertyFound.Result);
-        foreach (var owner in propertyFound.Result.Value.Owners.OrderBy(o => o.VatNumber))
-        {
-            Console.WriteLine($"Owner: {owner}");
-        }
-        Console.WriteLine("Owners: " + 
-                          String.Join(", ", propertyFound.Result.Value.Owners.OrderBy(o => o.VatNumber)));
-        
-         
-        
-        var ownerFoundAgain1 = await ownerService.GetOwner(1);
-        Console.WriteLine($"Owner found: {ownerFoundAgain1.Value.Properties.Count}");
-        foreach (var property1 in ownerFoundAgain1.Value.Properties.OrderBy(p => p.YearOfConstruction))
-        {
-            Console.WriteLine($"Owner: {property1}");
+            var result = await ownerService.CreateOwner(owner);
+            Console.WriteLine(
+                $"Create Owner: {(result.IsSuccess ? $"Success: {result.Value.ToString()}" : result.Error)} \n");
+
         }
 
-       var property2 = new Property
-       {
-            IdentificationNumber = "ID123456",
-            Address = "456 Elm St",
-            YearOfConstruction = 2008,
-            Type = PropertyType.Maisonet,
-            Owners = new List<Owner>
+        async Task GetOwnerExample()
+        {
+            var result = await ownerService.GetOwner(1); // Assuming ID 1 exists
+            Console.WriteLine(
+                $"Get Owner: {(result.IsSuccess ? $"Success: {result.Value.FirstName} {result.Value.LastName}" : result.Error)}\n");
+        }
+
+        async Task UpdateOwnerExample()
+        {
+            var oldOwner = new Owner
             {
-               
+                Id = 1, // Existing owner ID
+                VatNumber = "12345678910",
+                FirstName = "Alice",
+                LastName = "Smith",
+                Address = "123 Elm St",
+                PhoneNumber = "123-456-7890",
+                Email = "alice.smith@example.com"
+            };
+
+            var newOwner = new Owner
+            {
+                Id = 1,
+                VatNumber = "12345678910",
+                FirstName = "Alice",
+                LastName = "Johnson", // Changed last name for update
+                Address = "456 Oak St", // Changed address
+                PhoneNumber = "321-654-0987",
+                Email = "alice.johnson@example.com"
+            };
+
+            var result = await ownerService.UpdateOwner(oldOwner, newOwner);
+            Console.WriteLine($"Update Owner: {(result.IsSuccess ? $"Success {result.Value}" : result.Error)}\n");
+        }
+
+        async Task DeleteOwnerExample()
+        {
+            var owner = new Owner
+            {
+                Id = 1,
+                VatNumber = "12345678910"
+            };
+
+            var result = await ownerService.DeleteOwner(owner);
+            Console.WriteLine($"Delete Owner: {(result.IsSuccess ? result.IsSuccess : result.Error)}\n");
+        }
+
+        async Task CreatePropertyExample()
+        {
+            var property = new Property
+            {
+                IdentificationNumber = "ID123456",
+                Address = "456 Elm St",
+                YearOfConstruction = 2005,
+                Type = PropertyType.DetachedHouse
+            };
+
+            var result = await propertyService.CreateProperty(property, new List<string> { "12345678910" });
+            Console.WriteLine($"Create Property: {(result.IsSuccess ? result.Value : result.Error)}\n");
+        }
+
+        async Task GetPropertyExample()
+        {
+            var result = await propertyService.GetProperty(1); // Assuming ID 1 exists
+            if (result.IsSuccess)
+            {
+                Console.WriteLine($"Get Property: Found - {result.Value.IdentNum}\n");
             }
-        };
-        var updateProperty = propertyService.UpdateProperty(property, property2);
-        Console.WriteLine(updateProperty.Result);
-        var getProperty = propertyService.GetProperty(1);
-        Console.WriteLine(getProperty.Result);
-        
-        var deleteProperty = await propertyService.DeleteProperty(property);
-        var propertyfound = await propertyService.GetProperty(1);
-        if (propertyFound.Result.IsSuccess)
-        {
-            Console.WriteLine("property deleted");
+            else
+            {
+                Console.WriteLine($"Get Property: {result.Error}");
+            }
         }
-        else
+
+        async Task UpdatePropertyExample()
         {
-            Console.WriteLine("lathos");
-            Console.WriteLine(propertyFound.Result);
+            var newPropertyData = new Property
+            {
+                IdentificationNumber = "ID123456",
+                Address = "789 Oak St",
+                YearOfConstruction = 2010,
+                Type = PropertyType.Maisonet,
+            };
+
+            var result = await propertyService.UpdateProperty(new Property
+            {
+                Id = 1,
+                IdentificationNumber = "ID123456",
+                Address = "456 Elm St",
+                YearOfConstruction = 2005,
+                Type = PropertyType.DetachedHouse
+            }, newPropertyData); // Assuming ID 1 exists
+            Console.WriteLine($"Update Property: {(result.IsSuccess ? result.Value : result.Error)}\n");
         }
-        Console.WriteLine(propertyFound.Result);
-        var propertyfoundagain = await propertyService.GetProperty(1);
-        Console.WriteLine(propertyfoundagain.IsFailure);
+
+        async Task DeletePropertyExample()
+        {
+            var result = await propertyService.DeleteProperty(new Property
+            {
+                Id = 1,
+                IdentificationNumber = "ID123456",
+                Address = "456 Elm St",
+                YearOfConstruction = 2005,
+                Type = PropertyType.DetachedHouse
+            }); // Assuming ID 1 exists
+            Console.WriteLine($"Delete Property: {(result.IsSuccess ? result : result.Error)}\n");
+        }
+
+        async Task CreateRepairExample()
+        {
+            // ONLY FOR THE TEST CASE
+            var ownerRepository = host.Services.GetRequiredService<IOwnerRepository>();
+            // Assuming you have a valid owner already
+            var owner = await ownerRepository.GetOwner(1);
+            if (owner != null)
+            {
+                var repair = new Repair
+                {
+                    Type = RepairType.Painting,
+                    DateTime = DateTime.Now,
+                    Description = "Routine maintenance on plumbing",
+                    Address = "456 Elm St",
+                    Status = Status.Pending,
+                    Cost = 250.75m,
+
+                };
+
+
+                // Test: Create Repair
+                var createResult = await repairService.CreateRepair(repair, owner);
+                Console.WriteLine(createResult.IsSuccess
+                    ? $"Repair created: {createResult.Value.Description}\n"
+                    : $"Failed to create repair: {createResult.Error}\n");
+            }
+            else
+            {
+                Console.WriteLine($"Owner not found");
+            }
+        }
+
+
+        async Task GetRepairExample()
+        {
+            var repairId = 1;
+            var getResult = await repairService.GetRepair(repairId);
+            Console.WriteLine(getResult.IsSuccess
+                ? $"Repair retrieved: {getResult.Value.Description}\n"
+                : $"Failed to get repair: {getResult.Error}");
+        }
+
+        async Task UpdateRepairExample()
+        {
+            // ONLY FOR THE TEST CASE
+            var repairRepository = host.Services.GetRequiredService<IRepairRepository>();
+            var repairId = 1;
+            var existingRepairResult = await repairRepository.GetRepair(repairId);
+            if (existingRepairResult != null)
+            {
+                var repairToUpdate = existingRepairResult;
+                repairToUpdate.Description = "Updated description";
+
+                // Test: Update Repair
+                var updateResult = await repairService.UpdateRepair(repairToUpdate, repairToUpdate);
+                Console.WriteLine(updateResult.IsSuccess
+                    ? $"Repair updated: {updateResult.Value.Description}\n"
+                    : $"Failed to update repair: {updateResult.Error}");
+            }
+            else
+            {
+                Console.WriteLine($"Repair not found for update");
+            }
+        }
         
-        Console.ReadLine();
+         async Task DeleteRepairExample()
+        {
+            var repairId = 1; 
+            var repairToDeleteResult = await repairService.GetRepair(repairId);
+            if (repairToDeleteResult.IsSuccess)
+            {
+                // Test: Delete Repair
+                var deleteResult = await repairService.DeleteRepair(new Repair(){Id = 1});
+                Console.WriteLine(deleteResult.IsSuccess ? 
+                    "Repair deleted successfully." : 
+                    $"Failed to delete repair: {deleteResult.Error}");
+            }
+            else
+            {
+                Console.WriteLine($"Repair not found for deletion: {repairToDeleteResult.Error}");
+            }
+        }
     }
 }

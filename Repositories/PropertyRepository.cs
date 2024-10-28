@@ -6,7 +6,8 @@ using Technico.Models;
 namespace Technico.Repositories;
 
 public class PropertyRepository:IPropertyRepository
-{    private readonly TechnicoDbContext _context;
+{    
+    private readonly TechnicoDbContext _context;
 
     public PropertyRepository(TechnicoDbContext context)
     {
