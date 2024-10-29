@@ -13,4 +13,6 @@ public interface IRepairService
     public Task<Result<RepairResponse>> UpdateRepair (Repair oldRepair, Repair newRepair);
     
     public Task<Result> DeleteRepair (Repair repair);
+    public Task<Result> DeactivateRepair(int id);
+
 }

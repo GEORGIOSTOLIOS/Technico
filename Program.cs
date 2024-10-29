@@ -52,23 +52,26 @@ class Program
         var propertyService = host.Services.GetRequiredService<IPropertyService>();
         var repairService = host.Services.GetRequiredService<IRepairService>();
 
-
+        //------------------------------Test Cases Run------------------------------//
+        
         await CreateOwnerExample();
         await GetOwnerExample();
         await UpdateOwnerExample();
-        // await DeleteOwnerExample();
+        //await DeleteOwnerExample(); //If this method runs we will get failure (as we should) in return from the others due to dependencies. Remove the comment in order to see it works.
 
         await CreatePropertyExample();
+        //await SoftDeletePropertyExample();
         await GetPropertyExample();
         await UpdatePropertyExample();
         await DeletePropertyExample();
 
         await CreateRepairExample();
+        //await SoftDeleteRepairExample();
         await GetRepairExample();
         await UpdateRepairExample();
         await DeleteRepairExample();
 
-
+//------------------------------Test Cases Implementations------------------------------//
         async Task CreateOwnerExample()
         {
             var owner = new Owner
@@ -276,6 +279,30 @@ class Program
             {
                 Console.WriteLine($"Repair not found for deletion: {repairToDeleteResult.Error}");
             }
+        }
+         
+          async Task SoftDeletePropertyExample()
+        {
+            
+            var deactivateResult = await propertyService.DeactivateProperty(1);
+            Console.WriteLine(deactivateResult.IsSuccess 
+                ? "Property deactivated successfully!" 
+                : deactivateResult.Error);
+            
+            var propertyResult = await propertyService.GetProperty(1);
+            if (propertyResult.IsSuccess)
+            {
+                Console.WriteLine($"Property {propertyResult.Value} is " + 
+                                  (propertyResult.IsSuccess ? "active" : "inactive"));
+            }
+        }
+          
+         async Task SoftDeleteRepairExample()
+        {
+            var result = await repairService.DeactivateRepair(1);
+            Console.WriteLine(result.IsSuccess
+                ? "Repair soft deleted successfully."
+                : "Failed to soft delete repair.");
         }
     }
 }

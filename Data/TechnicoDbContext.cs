@@ -36,6 +36,9 @@ namespace Technico.Data
                 .Entity<Property>()
                 .HasIndex(p => p.IdentificationNumber)
                 .IsUnique();
+            
+            modelBuilder.Entity<Property>().HasQueryFilter(p => p.Type != PropertyType.Deactivated);
+            modelBuilder.Entity<Repair>().HasQueryFilter(r => r.Status != Status.Deactivated);
         }
     }
 }

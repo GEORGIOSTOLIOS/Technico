@@ -78,6 +78,20 @@ public class PropertyServiceImpl: IPropertyService
 
         return Result.Failure("Delete failed");
     }
+
+    public async Task<Result> DeactivateProperty(int id)
+    {
+        var propertyToDeactivate =  await _propertyRepository.GetProperty(id);
+        if (propertyToDeactivate == null)
+        {
+            return Result.Failure("Property Not found");
+        }
+
+        propertyToDeactivate.Type = PropertyType.Deactivated;
+        var propertyDeactivated = await _propertyRepository.UpdateProperty(propertyToDeactivate);
+
+        return !propertyDeactivated ? Result.Failure("Property Not found") : Result.Success("Property Deactivated");
+    }
     
     private PropertyResponse MapToPropertyResponse(Property property)
     {

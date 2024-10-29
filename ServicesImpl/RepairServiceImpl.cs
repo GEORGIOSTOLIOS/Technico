@@ -85,7 +85,21 @@ public class RepairServiceImpl: IRepairService
         return Result.Failure("Delete failed");
     }
     
-    private RepairResponse MapToRepairResponse(Repair repair)
+    public async Task<Result> DeactivateRepair(int id)
+    {
+        var repairToDeactivate =  await _repairRepository.GetRepair(id);
+        if (repairToDeactivate == null)
+        {
+            return Result.Failure("Repair Not found");
+        }
+
+        repairToDeactivate.Status = Status.Deactivated;
+        var propertyDeactivated = await _repairRepository.UpdateRepair(repairToDeactivate);
+
+        return !propertyDeactivated ? Result.Failure("Repair Not found") : Result.Success("Repair Deactivated");
+    }
+    
+    private static RepairResponse MapToRepairResponse(Repair repair)
     {
        
 

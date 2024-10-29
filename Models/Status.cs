@@ -2,5 +2,5 @@
 
 public enum Status
 {
-Pending, InProgress, Complete
+Pending, InProgress, Complete,Deactivated
 }

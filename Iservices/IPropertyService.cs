@@ -13,4 +13,6 @@ public interface IPropertyService
     public Task<Result<PropertyResponse>> UpdateProperty (Property oldProperty, Property newProperty);
     
     public Task<Result> DeleteProperty (Property property);
+    
+    public Task<Result> DeactivateProperty(int id);
 }
