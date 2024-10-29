@@ -47,8 +47,13 @@ public class PropertyServiceImpl: IPropertyService
         {
             return Result.Failure<PropertyResponse>("The property you want to update was not found");
         }
-        
+        var oldOwners = propertyToUpdate.Owners;
         propertyToUpdate.ChangeTo(newProperty);
+        if (propertyToUpdate.Owners.Count == 0)
+        {
+            propertyToUpdate.Owners = oldOwners;
+
+        }
         
         var propertyUpdated = await _propertyRepository.UpdateProperty(propertyToUpdate);
         
@@ -94,11 +99,15 @@ public class PropertyServiceImpl: IPropertyService
     }
     
     private PropertyResponse MapToPropertyResponse(Property property)
-    {
+    {    var ownerDetails = property.Owners.Select(owner => new OwnerDetail
+        {
+            VatNumber = owner.VatNumber,
+            Name = $"{owner.FirstName} {owner.LastName}"
+        }).ToList();
 
 
         var propertyResponse = new PropertyResponse(property.IdentificationNumber, property.Address,
-            property.YearOfConstruction, property.Type, property.Owners);
+            property.YearOfConstruction, property.Type, ownerDetails);
             
 
         return propertyResponse;

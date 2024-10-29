@@ -84,10 +84,19 @@ public class OwnerServiceImpl: IOwnerService
 
     private OwnerResponse MapToOwnerResponse(Owner owner)
     {
-       
+        var repairDetails = owner.Repairs.Select(repair => new RepairDetail
+        {
+            
+            Type = repair.Type,
+            DateTime = repair.DateTime,
+            Description = repair.Description,
+            Address = repair.Address,
+            Status = repair.Status,
+            Cost = repair.Cost
+        }).ToList();
 
         var ownerResponse = new OwnerResponse(owner.VatNumber, owner.FirstName, owner.LastName, 
-            owner.Address, owner.PhoneNumber, owner.Email, owner.Properties, owner.Repairs);
+            owner.Address, owner.PhoneNumber, owner.Email, owner.Properties, repairDetails);
 
         return ownerResponse;
     }
