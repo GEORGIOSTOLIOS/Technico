@@ -10,7 +10,7 @@ using Technico.Models;
 using Technico.Repositories;
 using Technico.ServicesImpl;
 using Technico.ServicesImpl;
-
+//Scroll down until you see the test examples
 class Program
 {
     static async Task Main(string[] args)
@@ -53,23 +53,30 @@ class Program
         var repairService = host.Services.GetRequiredService<IRepairService>();
 
         //------------------------------Test Cases Run------------------------------//
+        await CreatePropertyExample();// it will fail because we dont have owners yet
+        await CreateRepairExample(); // it will fail because we dont have owners yet
         
-        await CreateOwnerExample();
-        await GetOwnerExample();
-        await UpdateOwnerExample();
+        await CreateOwnerExample();//success
+        await GetOwnerExample();//success
+        await UpdateOwnerExample();//success
+        await GetOwnerExample();// we see the user is updated
         //await DeleteOwnerExample(); //If this method runs we will get failure (as we should) in return from the others due to dependencies. Remove the comment in order to see it works.
 
         await CreatePropertyExample();
-        //await SoftDeletePropertyExample();
-        await GetPropertyExample();
-        await UpdatePropertyExample();
-        await DeletePropertyExample();
+        //await SoftDeletePropertyExample(); Remove the comment to soft delete and property will not be visible
+        await GetPropertyExample();//success
+        await UpdatePropertyExample();//success
+        await GetPropertyExample();//success
+        //await DeletePropertyExample();
 
-        await CreateRepairExample();
+        await CreateRepairExample();//success
+        await GetOwnerExample();//success: Now owner display repairs as well
         //await SoftDeleteRepairExample();
-        await GetRepairExample();
-        await UpdateRepairExample();
-        await DeleteRepairExample();
+        await GetRepairExample();//success
+        await UpdateRepairExample();//success
+        await GetRepairExample();//success
+        await DeleteRepairExample();//success
+        
 
 //------------------------------Test Cases Implementations------------------------------//
         async Task CreateOwnerExample()
@@ -94,7 +101,7 @@ class Program
         {
             var result = await ownerService.GetOwner(1); // Assuming ID 1 exists
             Console.WriteLine(
-                $"Get Owner: {(result.IsSuccess ? $"Success: {result.Value.FirstName} {result.Value.LastName}" : result.Error)}\n");
+                $"Get Owner: {(result.IsSuccess ? $"Success: {result.Value} " : result.Error)}\n");
         }
 
         async Task UpdateOwnerExample()
@@ -156,7 +163,7 @@ class Program
             var result = await propertyService.GetProperty(1); // Assuming ID 1 exists
             if (result.IsSuccess)
             {
-                Console.WriteLine($"Get Property: Found - {result.Value.IdentNum}\n");
+                Console.WriteLine($"Get Property: Found - {result.Value}\n");
             }
             else
             {
@@ -221,7 +228,7 @@ class Program
                 // Test: Create Repair
                 var createResult = await repairService.CreateRepair(repair, owner);
                 Console.WriteLine(createResult.IsSuccess
-                    ? $"Repair created: {createResult.Value.Description}\n"
+                    ? $"Repair created: {createResult.Value}\n"
                     : $"Failed to create repair: {createResult.Error}\n");
             }
             else
@@ -236,7 +243,7 @@ class Program
             var repairId = 1;
             var getResult = await repairService.GetRepair(repairId);
             Console.WriteLine(getResult.IsSuccess
-                ? $"Repair retrieved: {getResult.Value.Description}\n"
+                ? $"Repair retrieved: {getResult.Value}\n"
                 : $"Failed to get repair: {getResult.Error}");
         }
 
@@ -254,7 +261,7 @@ class Program
                 // Test: Update Repair
                 var updateResult = await repairService.UpdateRepair(repairToUpdate, repairToUpdate);
                 Console.WriteLine(updateResult.IsSuccess
-                    ? $"Repair updated: {updateResult.Value.Description}\n"
+                    ? $"Repair updated: {updateResult.Value}\n"
                     : $"Failed to update repair: {updateResult.Error}");
             }
             else
