@@ -3,12 +3,11 @@
 namespace Technico.IRepositories;
 
 public interface IOwnerRepository
-{
-  public  Task<List<Owner>> GetOwners();
-  public Task<Owner?>  GetOwner(int id);
-  public Task<bool> OwnerExists( string vatNumber);
-  public Task<bool> CreateOwner(Owner owner);
-  public Task<bool> UpdateOwner( Owner owner);
-  public Task<bool> DeleteOwner(Owner owner);
-  public Task<bool> Save();
+{  Task<List<Owner>> GetOwners();
+   Task<Owner?>  GetOwner(int id);
+   Task<bool> OwnerExists( string vatNumber);
+   Task<bool> CreateOwner(Owner owner);
+   Task<bool> UpdateOwner( Owner owner);
+   Task<bool> DeleteOwner(Owner owner);
+   Task<bool> Save();
 }

@@ -6,13 +6,10 @@ namespace Technico.Iservices;
 
 public interface IRepairService
 {
-    public Task<Result<RepairResponse>> CreateRepair (Repair repair, Owner owner);
-    
-    public Task<Result<RepairResponse>> GetRepair (int id);
-    
-    public Task<Result<RepairResponse>> UpdateRepair (Repair oldRepair, Repair newRepair);
-    
-    public Task<Result> DeleteRepair (Repair repair);
-    public Task<Result> DeactivateRepair(int id);
+     Task<Result<RepairResponse>> CreateRepair (Repair repair, Owner owner);
+     Task<Result<RepairResponse>> GetRepair (int id);
+     Task<Result<RepairResponse>> UpdateRepair (int oldRepairId, Repair newRepair);
+     Task<Result> DeleteRepair (int repairId);
+     Task<Result> DeactivateRepair(int id);
 
 }

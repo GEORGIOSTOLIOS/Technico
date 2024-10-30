@@ -44,15 +44,15 @@ public class OwnerServiceImpl: IOwnerService
         return Result.Success(ownerResponse);
     }
 
-    public  async Task<Result<OwnerResponse>> UpdateOwner(Owner oldOwner, Owner newOwner)
+    public async Task<Result<OwnerResponse>> UpdateOwner(int oldOwnerId, Owner newOwner)
     {
-        var ownerToUpdate = await _ownerRepository.GetOwner(oldOwner.Id);
+        var ownerToUpdate = await _ownerRepository.GetOwner(oldOwnerId);
         if (ownerToUpdate == null)
         {
             return Result.Failure<OwnerResponse>("The owner you want to update was not found");
         }
-        
-        ownerToUpdate.ChangeTo(newOwner);
+
+        ownerToUpdate = newOwner;
         
         var ownerUpdated = await _ownerRepository.UpdateOwner(ownerToUpdate);
         
@@ -65,21 +65,23 @@ public class OwnerServiceImpl: IOwnerService
         return Result.Success<OwnerResponse>(ownerResponse);
     }
 
-    public async Task<Result> DeleteOwner(Owner owner)
+    public async Task<Result> DeleteOwner(int ownerId)
     {
-        var ownerToDelete = await _ownerRepository.GetOwner(owner.Id);
+        var ownerToDelete = await _ownerRepository.GetOwner(ownerId);
         if (ownerToDelete == null)
         {
             return Result.Failure("This owner does not exist");
         }
 
-        var ownerDeleted = await _ownerRepository.DeleteOwner(ownerToDelete);
-        if (ownerDeleted)
+        foreach (Property property in ownerToDelete.Properties)
         {
-            return Result.Success("Owner successfully deleted");
+            property.Owners.Remove(ownerToDelete);
         }
 
-        return Result.Failure("Delete failed");
+        ownerToDelete.Type = OwnerType.None;
+
+        var ownerDeleted = await _ownerRepository.UpdateOwner(ownerToDelete);
+        return ownerDeleted ? Result.Success("Owner successfully deleted") : Result.Failure("Delete failed");
     }
 
     private OwnerResponse MapToOwnerResponse(Owner owner)
@@ -100,4 +102,7 @@ public class OwnerServiceImpl: IOwnerService
 
         return ownerResponse;
     }
+    
+    
+    
 }

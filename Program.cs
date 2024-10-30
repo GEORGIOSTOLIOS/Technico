@@ -9,8 +9,10 @@ using Technico.Iservices;
 using Technico.Models;
 using Technico.Repositories;
 using Technico.ServicesImpl;
-using Technico.ServicesImpl;
+
 //Scroll down until you see the test examples
+namespace Technico;
+
 class Program
 {
     static async Task Main(string[] args)
@@ -56,32 +58,40 @@ class Program
         await CreatePropertyExample();// it will fail because we dont have owners yet
         await CreateRepairExample(); // it will fail because we dont have owners yet
         
-        await CreateOwnerExample();//success
-        await GetOwnerExample();//success
-        await UpdateOwnerExample();//success
+        await CreateOwnerExample();                     //success
+        await GetOwnerExample();                        //success
+        await UpdateOwnerExample();                     //success
         await GetOwnerExample();// we see the user is updated
         //await DeleteOwnerExample(); //If this method runs we will get failure (as we should) in return from the others due to dependencies. Remove the comment in order to see it works.
 
         await CreatePropertyExample();
         //await SoftDeletePropertyExample(); Remove the comment to soft delete and property will not be visible
-        await GetPropertyExample();//success
-        await UpdatePropertyExample();//success
-        await GetPropertyExample();//success
-        //await DeletePropertyExample();
+        await GetPropertyExample();                     //success
+        await UpdatePropertyExample(); 
+        //await DeleteOwnerExample();                   //success
+        await GetOwnerExample();
+        await GetPropertyExample();                     //success
+        await DeletePropertyExample();
+        await GetPropertyExample();                     //Not found
 
-        await CreateRepairExample();//success
-        await GetOwnerExample();//success: Now owner display repairs as well
+        await CreateRepairExample();                    //success
+        await GetOwnerExample();                        //success: Now owner display repairs as well
         //await SoftDeleteRepairExample();
-        await GetRepairExample();//success
-        await UpdateRepairExample();//success
-        await GetRepairExample();//success
-        await DeleteRepairExample();//success
+        await GetRepairExample();                       //success
+        await UpdateRepairExample();                    //success
+        await GetPropertyExample();
+        await GetRepairExample();                       //success
+        await DeleteRepairExample();                    //success
+        await GetRepairExample();
+        // Repair not found
+        await GetOwnerExample();                        // now owner does not have repairs
+       
         
 
-//------------------------------Test Cases Implementations------------------------------//
+        //------------------------------Test Cases Implementations------------------------------//
         async Task CreateOwnerExample()
         {
-            var owner = new Owner
+            var owner1 = new Owner
             {
                 VatNumber = "12345678910",
                 FirstName = "Alice",
@@ -90,10 +100,21 @@ class Program
                 PhoneNumber = "123-456-7890",
                 Email = "alice.smith@example.com"
             };
+            
+            var owner2 = new Owner
+            {
+                VatNumber = "VAT123456789",
+                FirstName = "John",
+                LastName = "Doe",
+                Address = "123 Main St, Anytown, USA",
+                PhoneNumber = "555-1234",
+                Email = "john.doe@example.com"
+            };
 
-            var result = await ownerService.CreateOwner(owner);
+            var result = await ownerService.CreateOwner(owner1);
+            var result1 = await ownerService.CreateOwner(owner2);
             Console.WriteLine(
-                $"Create Owner: {(result.IsSuccess ? $"Success: {result.Value.ToString()}" : result.Error)} \n");
+                $"Create Owner: {(result.IsSuccess && result1.IsSuccess  ? $"Success: {result.Value}" : result.Error)} \n");
 
         }
 
@@ -105,18 +126,7 @@ class Program
         }
 
         async Task UpdateOwnerExample()
-        {
-            var oldOwner = new Owner
-            {
-                Id = 1, // Existing owner ID
-                VatNumber = "12345678910",
-                FirstName = "Alice",
-                LastName = "Smith",
-                Address = "123 Elm St",
-                PhoneNumber = "123-456-7890",
-                Email = "alice.smith@example.com"
-            };
-
+        { 
             var newOwner = new Owner
             {
                 Id = 1,
@@ -128,19 +138,13 @@ class Program
                 Email = "alice.johnson@example.com"
             };
 
-            var result = await ownerService.UpdateOwner(oldOwner, newOwner);
+            var result = await ownerService.UpdateOwner(1, newOwner);
             Console.WriteLine($"Update Owner: {(result.IsSuccess ? $"Success {result.Value}" : result.Error)}\n");
         }
 
         async Task DeleteOwnerExample()
         {
-            var owner = new Owner
-            {
-                Id = 1,
-                VatNumber = "12345678910"
-            };
-
-            var result = await ownerService.DeleteOwner(owner);
+            var result = await ownerService.DeleteOwner(1);
             Console.WriteLine($"Delete Owner: {(result.IsSuccess ? result.IsSuccess : result.Error)}\n");
         }
 
@@ -154,7 +158,7 @@ class Program
                 Type = PropertyType.DetachedHouse
             };
 
-            var result = await propertyService.CreateProperty(property, new List<string> { "12345678910" });
+            var result = await propertyService.CreateProperty(property, new List<string> { "12345678910", "VAT123456789" });
             Console.WriteLine($"Create Property: {(result.IsSuccess ? result.Value : result.Error)}\n");
         }
 
@@ -174,34 +178,20 @@ class Program
         async Task UpdatePropertyExample()
         {
             var newPropertyData = new Property
-            {
+            {   Id = 1,
                 IdentificationNumber = "ID123456",
                 Address = "789 Oak St",
                 YearOfConstruction = 2010,
                 Type = PropertyType.Maisonet,
             };
 
-            var result = await propertyService.UpdateProperty(new Property
-            {
-                Id = 1,
-                IdentificationNumber = "ID123456",
-                Address = "456 Elm St",
-                YearOfConstruction = 2005,
-                Type = PropertyType.DetachedHouse
-            }, newPropertyData); // Assuming ID 1 exists
+            var result = await propertyService.UpdateProperty(1, newPropertyData); // Assuming ID 1 exists
             Console.WriteLine($"Update Property: {(result.IsSuccess ? result.Value : result.Error)}\n");
         }
 
         async Task DeletePropertyExample()
         {
-            var result = await propertyService.DeleteProperty(new Property
-            {
-                Id = 1,
-                IdentificationNumber = "ID123456",
-                Address = "456 Elm St",
-                YearOfConstruction = 2005,
-                Type = PropertyType.DetachedHouse
-            }); // Assuming ID 1 exists
+            var result = await propertyService.DeleteProperty(1); // Assuming ID 1 exists
             Console.WriteLine($"Delete Property: {(result.IsSuccess ? result : result.Error)}\n");
         }
 
@@ -248,36 +238,31 @@ class Program
         }
 
         async Task UpdateRepairExample()
-        {
-            // ONLY FOR THE TEST CASE
-            var repairRepository = host.Services.GetRequiredService<IRepairRepository>();
-            var repairId = 1;
-            var existingRepairResult = await repairRepository.GetRepair(repairId);
-            if (existingRepairResult != null)
+        {   var newRepair = new Repair
             {
-                var repairToUpdate = existingRepairResult;
-                repairToUpdate.Description = "Updated description";
-
-                // Test: Update Repair
-                var updateResult = await repairService.UpdateRepair(repairToUpdate, repairToUpdate);
+                Type = RepairType.Plumbing,
+                DateTime = DateTime.Now,
+                Description = "Fixing a leaking faucet in the bathroom.",
+                Address = "123 Water St, Springfield, USA",
+                Status = Status.Pending,
+                Cost = 150.75m
+            };
+                var updateResult = await repairService.UpdateRepair(1, newRepair);
                 Console.WriteLine(updateResult.IsSuccess
                     ? $"Repair updated: {updateResult.Value}\n"
                     : $"Failed to update repair: {updateResult.Error}");
             }
-            else
-            {
-                Console.WriteLine($"Repair not found for update");
-            }
-        }
+            
         
-         async Task DeleteRepairExample()
+        
+        async Task DeleteRepairExample()
         {
             var repairId = 1; 
             var repairToDeleteResult = await repairService.GetRepair(repairId);
             if (repairToDeleteResult.IsSuccess)
             {
                 // Test: Delete Repair
-                var deleteResult = await repairService.DeleteRepair(new Repair(){Id = 1});
+                var deleteResult = await repairService.DeleteRepair(1);
                 Console.WriteLine(deleteResult.IsSuccess ? 
                     "Repair deleted successfully." : 
                     $"Failed to delete repair: {deleteResult.Error}");
@@ -288,7 +273,7 @@ class Program
             }
         }
          
-          async Task SoftDeletePropertyExample()
+        async Task SoftDeletePropertyExample()
         {
             
             var deactivateResult = await propertyService.DeactivateProperty(1);
@@ -304,7 +289,7 @@ class Program
             }
         }
           
-         async Task SoftDeleteRepairExample()
+        async Task SoftDeleteRepairExample()
         {
             var result = await repairService.DeactivateRepair(1);
             Console.WriteLine(result.IsSuccess

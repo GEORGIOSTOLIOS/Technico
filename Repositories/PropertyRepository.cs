@@ -44,7 +44,7 @@ public class PropertyRepository:IPropertyRepository
     }
 
     public async Task<bool> UpdateProperty(Property property)
-    {
+    {   
         _context.Update(property);
         return await Save();
     }

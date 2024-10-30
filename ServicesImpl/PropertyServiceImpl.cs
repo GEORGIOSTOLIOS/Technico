@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using LanguageExt;
 using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
@@ -40,15 +41,16 @@ public class PropertyServiceImpl: IPropertyService
         return Result.Success(propertyResponse);
     }
 
-    public async Task<Result<PropertyResponse>> UpdateProperty(Property oldProperty, Property newProperty)
+    public async Task<Result<PropertyResponse>> UpdateProperty(int oldPropertyId, Property newProperty)
     {
-        var propertyToUpdate = await _propertyRepository.GetProperty(oldProperty.Id);
+        var propertyToUpdate = await _propertyRepository.GetProperty(oldPropertyId);
         if (propertyToUpdate == null)
         {
             return Result.Failure<PropertyResponse>("The property you want to update was not found");
         }
         var oldOwners = propertyToUpdate.Owners;
-        propertyToUpdate.ChangeTo(newProperty);
+        propertyToUpdate = Clone(propertyToUpdate, newProperty);
+        
         if (propertyToUpdate.Owners.Count == 0)
         {
             propertyToUpdate.Owners = oldOwners;
@@ -66,10 +68,10 @@ public class PropertyServiceImpl: IPropertyService
         return Result.Success<PropertyResponse>(propertyResponse);
     }
 
-    public async Task<Result> DeleteProperty(Property property)
+    public async Task<Result> DeleteProperty(int propertyId)
     {
         
-        var propertyToDelete = await _propertyRepository.GetProperty(property.Id);
+        var propertyToDelete = await _propertyRepository.GetProperty(propertyId);
         if (propertyToDelete == null)
         {
             return Result.Failure("This property does not exist");
@@ -111,5 +113,16 @@ public class PropertyServiceImpl: IPropertyService
             
 
         return propertyResponse;
+    }
+
+    private Property Clone(Property oldProperty, Property newProperty)
+    {
+        oldProperty.Address = newProperty.Address;
+        oldProperty.YearOfConstruction = newProperty.YearOfConstruction;
+        oldProperty.IdentificationNumber = newProperty.IdentificationNumber;
+        oldProperty.Owners = newProperty.Owners;
+        oldProperty.Type = newProperty.Type;
+
+        return oldProperty;
     }
 }

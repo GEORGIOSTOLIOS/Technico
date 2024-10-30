@@ -9,7 +9,7 @@ public record RepairResponse(
     String? Address,
     Status Status,
     decimal Cost,
-    Owner? Owner)
+    OwnerDetail? Owner)
 {
     
 }

@@ -6,4 +6,8 @@ public class OwnerDetail
 
     public string Name { get; set; } = string.Empty;
     
+    public override string ToString()
+    {
+        return $"OwnerDetail: VAT = {VatNumber}, Name = {Name}";
+    }
 }

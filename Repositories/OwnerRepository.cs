@@ -39,7 +39,7 @@ public class OwnerRepository: IOwnerRepository
     }
 
     public async Task<bool> UpdateOwner( Owner owner)
-    {
+    {   _context.ChangeTracker.Clear();
         _context.Update(owner);
         return await Save();
     }

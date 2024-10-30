@@ -7,8 +7,8 @@ namespace Technico.Iservices;
 
 public interface IOwnerService
 {
-    public Task<Result<OwnerResponse>> CreateOwner (Owner owner);
-    public Task<Result<OwnerResponse>> GetOwner (int id);
-    public Task<Result<OwnerResponse>> UpdateOwner (Owner oldOwner, Owner newOwner);
-    public Task<Result> DeleteOwner (Owner owner);
+    Task<Result<OwnerResponse>> CreateOwner (Owner owner);
+     Task<Result<OwnerResponse>> GetOwner (int id);
+     Task<Result<OwnerResponse>> UpdateOwner (int oldOwnerId, Owner newOwner);
+     Task<Result> DeleteOwner (int ownerId);
 }

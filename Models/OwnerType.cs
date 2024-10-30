@@ -2,5 +2,5 @@
 
 public enum OwnerType
 {
-    Apartment,House
+    Apartment,House,None
 }

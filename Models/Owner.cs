@@ -24,29 +24,8 @@ public class Owner
     
     public OwnerType Type { get; set; }
 
-    public List<Property> Properties { get; set; } = [];
+    public List<Property>? Properties { get; set; }
 
     public List<Repair> Repairs { get; set; } = [];
-
     
-    public override string ToString()
-    {
-        return $"VAT: {VatNumber}, Name: {FirstName} {LastName}";
-    }
-
-    public void ChangeTo(Owner owner)
-    {
-        this.FirstName = owner.FirstName;
-        this.LastName = owner.LastName;
-        this.Properties = owner.Properties;
-        this.Address = owner.Address;
-        this.VatNumber = owner.VatNumber;
-        this.Email = owner.Email;
-        this.Password = owner.Password;
-        this.Type = owner.Type;
-        this.PhoneNumber = owner.PhoneNumber;
-        this.Repairs = owner.Repairs;
-
-        
-    }
 }

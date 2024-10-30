@@ -45,13 +45,14 @@ public class RepairRepository: IRepairRepository
     }
 
     public async Task<bool> UpdateRepair(Repair repair)
-    {
+    { 
+        _context.ChangeTracker.Clear();
         _context.Update(repair);
         return await Save();
     }
 
     public Task<bool> DeleteRepair(Repair repair)
-    {
+    { 
         _context.Remove(repair);
         return Save();
     }

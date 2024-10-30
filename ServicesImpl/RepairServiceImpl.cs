@@ -41,16 +41,16 @@ public class RepairServiceImpl: IRepairService
         return Result.Success(repairResponse);
     }
 
-    public async Task<Result<RepairResponse>> UpdateRepair(Repair oldRepair, Repair newRepair)
+    public async Task<Result<RepairResponse>> UpdateRepair(int oldRepairId, Repair newRepair)
     {
-        var repairToUpdate = await _repairRepository.GetRepair(oldRepair.Id);
+        var repairToUpdate = await _repairRepository.GetRepair(oldRepairId);
         if (repairToUpdate == null)
         {
             return Result.Failure<RepairResponse>("The repair you want to update was not found");
         }
 
-        var oldOwner = oldRepair.Owner;
-        repairToUpdate.ChangeTo(newRepair);
+        var oldOwner = repairToUpdate.Owner;
+        repairToUpdate = newRepair;
         
         if (newRepair.Owner == null)
         {
@@ -68,9 +68,9 @@ public class RepairServiceImpl: IRepairService
         return Result.Success<RepairResponse>(repairResponse);
     }
 
-    public async Task<Result> DeleteRepair(Repair repair)
+    public async Task<Result> DeleteRepair(int repairId)
     {
-        var repairToDelete = await _repairRepository.GetRepair(repair.Id);
+        var repairToDelete = await _repairRepository.GetRepair(repairId);
         if (repairToDelete == null)
         {
             return Result.Failure("This repair does not exist");
@@ -101,10 +101,15 @@ public class RepairServiceImpl: IRepairService
     
     private static RepairResponse MapToRepairResponse(Repair repair)
     {
+        var ownerDetails = new OwnerDetail()
+        {
+            VatNumber = repair.Owner.VatNumber,
+            Name = $"{repair.Owner.FirstName} {repair.Owner.LastName}"
+        };
        
 
         var repairResponse = new RepairResponse(repair.DateTime, repair.Type, repair.Description, 
-            repair.Address, repair.Status, repair.Cost, repair.Owner);
+            repair.Address, repair.Status, repair.Cost, ownerDetails);
 
         return repairResponse;
     }
