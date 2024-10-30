@@ -5,9 +5,6 @@ namespace Technico.Models;
 public class Owner
 {   
     public int Id { get; set; }
-
-    [Required(ErrorMessage = "VAT number is required")]
-    [MinLength(1, ErrorMessage = "VAT number cannot be blank")]
     public required string VatNumber { get; set; } = string.Empty;
 
     public string FirstName { get; set; } = string.Empty;

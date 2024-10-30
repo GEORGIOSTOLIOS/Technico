@@ -19,8 +19,6 @@ public class Repair
     
     [Precision(10, 2)]
     public decimal Cost { get; set; }
-    
-    [Required(ErrorMessage = "An owner vat number is required")]
     public Owner? Owner { get; set; } 
     
     
