@@ -15,16 +15,6 @@ namespace Technico.Data
         {
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.LogTo(Console.WriteLine, LogLevel.Error);
-            optionsBuilder.UseSqlServer("Data Source=(local)\\SQLEXPRESS;Initial Catalog=Technico;Integrated Security=True;TrustServerCertificate=True;");
-        }
-             
-        
-            
-        
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
@@ -39,6 +29,9 @@ namespace Technico.Data
             
             modelBuilder.Entity<Property>().HasQueryFilter(p => p.Type != PropertyType.Deactivated);
             modelBuilder.Entity<Repair>().HasQueryFilter(r => r.Status != Status.Deactivated);
+            modelBuilder.Entity<Owner>().HasQueryFilter(o =>  o.Type!= OwnerType.None);
+            
+           
         }
     }
 }
