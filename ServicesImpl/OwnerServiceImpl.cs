@@ -4,19 +4,26 @@ using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
 using Technico.Responses;
+using Technico.Validators;
 
 namespace Technico.ServicesImpl;
 
 public class OwnerServiceImpl: IOwnerService
 {
     private readonly IOwnerRepository _ownerRepository;
+    private readonly OwnerValidator OwnerValidator;
     
-    public OwnerServiceImpl(IOwnerRepository ownerRepository)
+    public OwnerServiceImpl(IOwnerRepository ownerRepository, OwnerValidator ownerValidator)
     {
         _ownerRepository = ownerRepository;
+        this.OwnerValidator = ownerValidator;
     }
     public async Task<Result<OwnerResponse>> CreateOwner(Owner owner)
-    {
+    {   
+        if (!(await OwnerValidator.ValidateAsync(owner)).IsValid)
+        {
+            return Result.Failure<OwnerResponse>("Invalid input");
+        }
         var ownerCreated = await _ownerRepository.CreateOwner(owner);
         if (!ownerCreated)
         {
@@ -46,6 +53,11 @@ public class OwnerServiceImpl: IOwnerService
 
     public async Task<Result<OwnerResponse>> UpdateOwner(int oldOwnerId, Owner newOwner)
     {
+        if (!(await OwnerValidator.ValidateAsync(newOwner)).IsValid)
+        {
+            return Result.Failure<OwnerResponse>("Invalid input");
+        }
+        
         var ownerToUpdate = await _ownerRepository.GetOwner(oldOwnerId);
         if (ownerToUpdate == null)
         {

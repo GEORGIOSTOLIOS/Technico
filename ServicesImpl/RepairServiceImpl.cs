@@ -3,20 +3,27 @@ using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
 using Technico.Responses;
+using Technico.Validators;
 
 namespace Technico.ServicesImpl;
 
 public class RepairServiceImpl: IRepairService
 {
     private readonly IRepairRepository _repairRepository;
+    private readonly RepairValidator repairValidator;
 
-    public RepairServiceImpl(IRepairRepository repairRepository)
+    public RepairServiceImpl(IRepairRepository repairRepository, RepairValidator repairValidator)
     {
         _repairRepository = repairRepository;
+        this.repairValidator = repairValidator;
     }
 
     public async Task<Result<RepairResponse>> CreateRepair(Repair repair, Owner owner)
-    {
+    {   if (!(await repairValidator.ValidateAsync(repair)).IsValid)
+        {
+            return Result.Failure<RepairResponse>("Invalid input");
+        }
+        
         var repairCreated = await _repairRepository.CreateRepair(repair, owner);
         if (!repairCreated)
         {

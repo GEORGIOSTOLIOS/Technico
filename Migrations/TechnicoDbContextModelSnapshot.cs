@@ -136,7 +136,7 @@ namespace Technico.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OwnerId")
+                    b.Property<int?>("OwnerId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -171,9 +171,7 @@ namespace Technico.Migrations
                 {
                     b.HasOne("Technico.Models.Owner", "Owner")
                         .WithMany("Repairs")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OwnerId");
 
                     b.Navigation("Owner");
                 });

@@ -4,19 +4,25 @@ using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
 using Technico.Responses;
+using Technico.Validators;
 
 namespace Technico.ServicesImpl;
 
 public class PropertyServiceImpl: IPropertyService
 {
     private readonly IPropertyRepository _propertyRepository;
-
-    public PropertyServiceImpl(IPropertyRepository propertyRepository)
+    private readonly PropertyValidator propertyValidator;
+    public PropertyServiceImpl(IPropertyRepository propertyRepository, PropertyValidator propertyValidator)
     {
         _propertyRepository = propertyRepository;
+        this.propertyValidator = propertyValidator;
     }
     public async Task<Result<PropertyResponse>> CreateProperty(Property property, List<string> ownersVatNumbers)
     {
+        if (!(await propertyValidator.ValidateAsync(property)).IsValid)
+        {
+            return Result.Failure<PropertyResponse>("Invalid input");
+        }
         var propertyCreated = await _propertyRepository.CreateProperty(property, ownersVatNumbers);
         if (!propertyCreated)
         {

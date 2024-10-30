@@ -9,6 +9,9 @@ using Technico.Iservices;
 using Technico.Models;
 using Technico.Repositories;
 using Technico.ServicesImpl;
+using Technico.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 //Scroll down until you see the test examples
 namespace Technico;
@@ -40,6 +43,10 @@ class Program
                 services.AddScoped<IPropertyService, PropertyServiceImpl>();
                 services.AddScoped<IRepairRepository, RepairRepository>();
                 services.AddScoped<IRepairService, RepairServiceImpl>();
+                
+                services.AddValidatorsFromAssemblyContaining<RepairValidator>();
+                services.AddValidatorsFromAssemblyContaining<OwnerValidator>();
+                services.AddValidatorsFromAssemblyContaining<PropertyValidator>();
             })
             .Build();
 
@@ -98,7 +105,9 @@ class Program
                 LastName = "Smith",
                 Address = "123 Elm St",
                 PhoneNumber = "123-456-7890",
-                Email = "alice.smith@example.com"
+                Email = "alice.smith@example.com",
+                Type = OwnerType.House, // Replace with a valid type
+                Password = "A1!abcde"
             };
             
             var owner2 = new Owner
@@ -112,9 +121,9 @@ class Program
             };
 
             var result = await ownerService.CreateOwner(owner1);
-            var result1 = await ownerService.CreateOwner(owner2);
+            var result1 = await ownerService.CreateOwner(owner2);// invalid owner will not be created
             Console.WriteLine(
-                $"Create Owner: {(result.IsSuccess && result1.IsSuccess  ? $"Success: {result.Value}" : result.Error)} \n");
+                $"Create Owner: {(result.IsSuccess ? $"Success: {result.Value}" : result.Error)} \n");
 
         }
 
@@ -128,14 +137,15 @@ class Program
         async Task UpdateOwnerExample()
         { 
             var newOwner = new Owner
-            {
-                Id = 1,
-                VatNumber = "12345678910",
-                FirstName = "Alice",
-                LastName = "Johnson", // Changed last name for update
-                Address = "456 Oak St", // Changed address
-                PhoneNumber = "321-654-0987",
-                Email = "alice.johnson@example.com"
+            {   Id = 1,
+                VatNumber = "55566677788", // Unique VAT number
+                FirstName = "Robert",
+                LastName = "Brown",
+                Address = "321 Pine Rd",
+                PhoneNumber = "456-123-7890", // Valid format
+                Email = "robert.brown@example.com", // Valid email
+                Type = OwnerType.House, // Ensure this is a valid enum value
+                Password = "Rob3rtB!@n" // Valid password
             };
 
             var result = await ownerService.UpdateOwner(1, newOwner);
@@ -158,7 +168,7 @@ class Program
                 Type = PropertyType.DetachedHouse
             };
 
-            var result = await propertyService.CreateProperty(property, new List<string> { "12345678910", "VAT123456789" });
+            var result = await propertyService.CreateProperty(property, new List<string> { "55566677788", "VAT123456789" });
             Console.WriteLine($"Create Property: {(result.IsSuccess ? result.Value : result.Error)}\n");
         }
 
@@ -205,12 +215,12 @@ class Program
             {
                 var repair = new Repair
                 {
-                    Type = RepairType.Painting,
-                    DateTime = DateTime.Now,
-                    Description = "Routine maintenance on plumbing",
-                    Address = "456 Elm St",
-                    Status = Status.Pending,
-                    Cost = 250.75m,
+                    Type = RepairType.Plumbing, // Valid enum value
+                    DateTime = DateTime.Now.AddDays(-1), // Valid past date
+                    Description = "Fixed a leaking faucet.", // Valid description
+                    Address = "123 Elm St, Springfield", // Valid address
+                    Status = Status.Complete, // Valid enum value
+                    Cost = 150.00m 
 
                 };
 
