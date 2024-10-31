@@ -1,10 +1,10 @@
-﻿namespace Technico.Models;
+﻿namespace Technico.Details;
 
 public class OwnerDetail
 {
-    public required string VatNumber { get; set; } = string.Empty;
+    public required string VatNumber { get; init; } = string.Empty;
 
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
     
     public override string ToString()
     {

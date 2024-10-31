@@ -11,10 +11,11 @@ public class Repair
     
     public DateTime DateTime { get; set; }
     
+    [MaxLength(500)] 
     public string? Description { get; set; }
-    
+
+    [MaxLength(200)] 
     public string Address { get; set; } = string.Empty;
-    
     public Status Status { get; set; }
     
     [Precision(10, 2)]

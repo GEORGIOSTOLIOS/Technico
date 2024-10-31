@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Technico.Details;
 using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
@@ -10,16 +11,16 @@ namespace Technico.ServicesImpl;
 public class RepairServiceImpl: IRepairService
 {
     private readonly IRepairRepository _repairRepository;
-    private readonly RepairValidator repairValidator;
+    private readonly RepairValidator _repairValidator;
 
     public RepairServiceImpl(IRepairRepository repairRepository, RepairValidator repairValidator)
     {
         _repairRepository = repairRepository;
-        this.repairValidator = repairValidator;
+        _repairValidator = repairValidator;
     }
 
     public async Task<Result<RepairResponse>> CreateRepair(Repair repair, Owner owner)
-    {   if (!(await repairValidator.ValidateAsync(repair)).IsValid)
+    {   if (!(await _repairValidator.ValidateAsync(repair)).IsValid)
         {
             return Result.Failure<RepairResponse>("Invalid input");
         }
@@ -72,7 +73,7 @@ public class RepairServiceImpl: IRepairService
         }
 
         var repairResponse = MapToRepairResponse(repairToUpdate);
-        return Result.Success<RepairResponse>(repairResponse);
+        return Result.Success(repairResponse);
     }
 
     public async Task<Result> DeleteRepair(int repairId)
@@ -84,12 +85,8 @@ public class RepairServiceImpl: IRepairService
         }
 
         var repairDeleted = await _repairRepository.DeleteRepair(repairToDelete);
-        if (repairDeleted)
-        {
-            return Result.Success("Repair successfully deleted");
-        }
-
-        return Result.Failure("Delete failed");
+        
+        return repairDeleted ? Result.Success("Repair successfully deleted") : Result.Failure("Delete failed");
     }
     
     public async Task<Result> DeactivateRepair(int id)
@@ -108,7 +105,7 @@ public class RepairServiceImpl: IRepairService
     
     private static RepairResponse MapToRepairResponse(Repair repair)
     {
-        var ownerDetails = new OwnerDetail()
+        var ownerDetails = new OwnerDetail
         {
             VatNumber = repair.Owner.VatNumber,
             Name = $"{repair.Owner.FirstName} {repair.Owner.LastName}"

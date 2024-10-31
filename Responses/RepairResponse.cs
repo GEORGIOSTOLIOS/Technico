@@ -1,4 +1,5 @@
-﻿using Technico.Models;
+﻿using Technico.Details;
+using Technico.Models;
 
 namespace Technico.Responses;
 

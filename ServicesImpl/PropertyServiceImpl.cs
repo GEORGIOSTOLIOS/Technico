@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using LanguageExt;
+using Technico.Details;
 using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
@@ -11,15 +11,15 @@ namespace Technico.ServicesImpl;
 public class PropertyServiceImpl: IPropertyService
 {
     private readonly IPropertyRepository _propertyRepository;
-    private readonly PropertyValidator propertyValidator;
+    private readonly PropertyValidator _propertyValidator;
     public PropertyServiceImpl(IPropertyRepository propertyRepository, PropertyValidator propertyValidator)
     {
         _propertyRepository = propertyRepository;
-        this.propertyValidator = propertyValidator;
+        _propertyValidator = propertyValidator;
     }
     public async Task<Result<PropertyResponse>> CreateProperty(Property property, List<string> ownersVatNumbers)
     {
-        if (!(await propertyValidator.ValidateAsync(property)).IsValid)
+        if (!(await _propertyValidator.ValidateAsync(property)).IsValid)
         {
             return Result.Failure<PropertyResponse>("Invalid input");
         }
@@ -71,7 +71,7 @@ public class PropertyServiceImpl: IPropertyService
         }
 
         var propertyResponse = MapToPropertyResponse(propertyToUpdate);
-        return Result.Success<PropertyResponse>(propertyResponse);
+        return Result.Success(propertyResponse);
     }
 
     public async Task<Result> DeleteProperty(int propertyId)
@@ -84,12 +84,8 @@ public class PropertyServiceImpl: IPropertyService
         }
 
         var ownerDeleted = await _propertyRepository.DeleteProperty(propertyToDelete);
-        if (ownerDeleted)
-        {
-            return Result.Success("Property successfully deleted");
-        }
-
-        return Result.Failure("Delete failed");
+        
+        return ownerDeleted ? Result.Success("Property successfully deleted") : Result.Failure("Delete failed");
     }
 
     public async Task<Result> DeactivateProperty(int id)
@@ -121,7 +117,7 @@ public class PropertyServiceImpl: IPropertyService
         return propertyResponse;
     }
 
-    private Property Clone(Property oldProperty, Property newProperty)
+    private static Property Clone(Property oldProperty, Property newProperty)
     {
         oldProperty.Address = newProperty.Address;
         oldProperty.YearOfConstruction = newProperty.YearOfConstruction;

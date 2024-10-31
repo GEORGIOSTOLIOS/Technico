@@ -1,21 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Technico.Models;
 
-namespace Technico.Models;
+namespace Technico.Details;
 
 public class RepairDetail
 {
-    public RepairType Type { get; set; }
+    public RepairType Type { get; init; }
     
-    public DateTime DateTime { get; set; } 
+    public DateTime DateTime { get; init; } 
     
-    public string? Description { get; set; }
+    public string? Description { get; init; }
     
-    public string Address { get; set; } = string.Empty;
+    public string Address { get; init; } = string.Empty;
     
-    public Status Status { get; set; }
+    public Status Status { get; init; }
     
     [Precision(10, 2)]
-    public decimal Cost { get; set; }
+    public decimal Cost { get; init; }
     
     public override string ToString()
     {

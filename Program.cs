@@ -11,7 +11,6 @@ using Technico.Repositories;
 using Technico.ServicesImpl;
 using Technico.Validators;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 
 //Scroll down until you see the test examples
 namespace Technico;
@@ -61,7 +60,7 @@ class Program
         var propertyService = host.Services.GetRequiredService<IPropertyService>();
         var repairService = host.Services.GetRequiredService<IRepairService>();
 
-        //------------------------------Test Cases Run------------------------------//
+        //------------------------------Test Cases Implementations------------------------------//
         await CreatePropertyExample();// it will fail because we dont have owners yet
         await CreateRepairExample(); // it will fail because we dont have owners yet
         
@@ -72,10 +71,10 @@ class Program
         //await DeleteOwnerExample(); //If this method runs we will get failure (as we should) in return from the others due to dependencies. Remove the comment in order to see it works.
 
         await CreatePropertyExample();
-        //await SoftDeletePropertyExample(); Remove the comment to soft delete and property will not be visible
+        //await SoftDeletePropertyExample(); Remove the comment to softdelete and the property will not be visible
         await GetPropertyExample();                     //success
-        await UpdatePropertyExample(); 
-        //await DeleteOwnerExample();                   //success
+        await UpdatePropertyExample();                  //success
+        //await DeleteOwnerExample();                   
         await GetOwnerExample();
         await GetPropertyExample();                     //success
         await DeletePropertyExample();

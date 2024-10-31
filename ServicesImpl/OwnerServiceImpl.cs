@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using LanguageExt;
+using Technico.Details;
 using Technico.IRepositories;
 using Technico.Iservices;
 using Technico.Models;
@@ -11,16 +11,16 @@ namespace Technico.ServicesImpl;
 public class OwnerServiceImpl: IOwnerService
 {
     private readonly IOwnerRepository _ownerRepository;
-    private readonly OwnerValidator OwnerValidator;
+    private readonly OwnerValidator _ownerValidator;
     
     public OwnerServiceImpl(IOwnerRepository ownerRepository, OwnerValidator ownerValidator)
     {
         _ownerRepository = ownerRepository;
-        this.OwnerValidator = ownerValidator;
+        _ownerValidator = ownerValidator;
     }
     public async Task<Result<OwnerResponse>> CreateOwner(Owner owner)
     {   
-        if (!(await OwnerValidator.ValidateAsync(owner)).IsValid)
+        if (!(await _ownerValidator.ValidateAsync(owner)).IsValid)
         {
             return Result.Failure<OwnerResponse>("Invalid input");
         }
@@ -53,7 +53,7 @@ public class OwnerServiceImpl: IOwnerService
 
     public async Task<Result<OwnerResponse>> UpdateOwner(int oldOwnerId, Owner newOwner)
     {
-        if (!(await OwnerValidator.ValidateAsync(newOwner)).IsValid)
+        if (!(await _ownerValidator.ValidateAsync(newOwner)).IsValid)
         {
             return Result.Failure<OwnerResponse>("Invalid input");
         }
@@ -74,7 +74,7 @@ public class OwnerServiceImpl: IOwnerService
         }
 
         var ownerResponse = MapToOwnerResponse(ownerToUpdate);
-        return Result.Success<OwnerResponse>(ownerResponse);
+        return Result.Success(ownerResponse);
     }
 
     public async Task<Result> DeleteOwner(int ownerId)
