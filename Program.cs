@@ -180,7 +180,7 @@ class Program
             }
             else
             {
-                Console.WriteLine($"Get Property: {result.Error}");
+                Console.WriteLine($"Get Property: {result.Error}\n");
             }
         }
 
@@ -243,7 +243,7 @@ class Program
             var getResult = await repairService.GetRepair(repairId);
             Console.WriteLine(getResult.IsSuccess
                 ? $"Repair retrieved: {getResult.Value}\n"
-                : $"Failed to get repair: {getResult.Error}");
+                : $"Failed to get repair: {getResult.Error}\n");
         }
 
         async Task UpdateRepairExample()
@@ -273,12 +273,12 @@ class Program
                 // Test: Delete Repair
                 var deleteResult = await repairService.DeleteRepair(1);
                 Console.WriteLine(deleteResult.IsSuccess ? 
-                    "Repair deleted successfully." : 
-                    $"Failed to delete repair: {deleteResult.Error}");
+                    "Repair deleted successfully.\n" : 
+                    $"Failed to delete repair: {deleteResult.Error}\n");
             }
             else
             {
-                Console.WriteLine($"Repair not found for deletion: {repairToDeleteResult.Error}");
+                Console.WriteLine($"Repair not found for deletion: {repairToDeleteResult.Error}\n");
             }
         }
          
