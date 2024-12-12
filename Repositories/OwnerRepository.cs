@@ -20,7 +20,9 @@ public class OwnerRepository: IOwnerRepository
 
     public async Task<Owner?> GetOwner(int id)
     {
-        return await _context.Owners.Where(o => o.Id == id).FirstOrDefaultAsync();
+        return await _context.Owners.Where(o => o.Id == id).
+            Include(o => o.Properties).
+            Include(o => o.Repairs).FirstOrDefaultAsync();
     }
 
     public async Task<bool> OwnerExists( string vatNumber)

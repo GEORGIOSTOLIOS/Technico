@@ -84,17 +84,11 @@ public class OwnerServiceImpl: IOwnerService
         {
             return Result.Failure("This owner does not exist");
         }
-
-        foreach (Property property in ownerToDelete.Properties)
-        {
-            property.Owners.Remove(ownerToDelete);
-        }
-
-        ownerToDelete.Type = OwnerType.None;
-
-        var ownerDeleted = await _ownerRepository.UpdateOwner(ownerToDelete);
+        
+        var ownerDeleted = await _ownerRepository.DeleteOwner(ownerToDelete);
         return ownerDeleted ? Result.Success("Owner successfully deleted") : Result.Failure("Delete failed");
     }
+
 
     private OwnerResponse MapToOwnerResponse(Owner owner)
     {
