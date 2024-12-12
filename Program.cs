@@ -72,9 +72,10 @@ class Program
 
         await CreatePropertyExample();
         //await SoftDeletePropertyExample(); Remove the comment to softdelete and the property will not be visible
-        await GetPropertyExample();                     //success
+        await GetPropertyExample();
+        await GetOwnerExample();  //success
         await UpdatePropertyExample();                  //success
-        //await DeleteOwnerExample();                   
+       // await DeleteOwnerExample();                   
         await GetOwnerExample();
         await GetPropertyExample();                     //success
         await DeletePropertyExample();
@@ -111,16 +112,18 @@ class Program
             
             var owner2 = new Owner
             {
-                VatNumber = "VAT123456789",
-                FirstName = "John",
-                LastName = "Doe",
-                Address = "123 Main St, Anytown, USA",
-                PhoneNumber = "555-1234",
-                Email = "john.doe@example.com"
+                VatNumber = "12345678901",            // Unique VAT number, assuming it should be 11 digits.
+                FirstName = "Johnathan",              // Non-empty first name
+                LastName = "Doe",                     // Non-empty last name
+                Address = "123 Main St, Anytown, USA",// Valid address
+                PhoneNumber = "123-456-7890",         // Phone number in required format (123-456-7890)
+                Email = "john.doe@example.com",       // Valid email format
+                Type = OwnerType.House,               // Valid enum value for owner type
+                Password = "Secure@123" 
             };
 
             var result = await ownerService.CreateOwner(owner1);
-            var result1 = await ownerService.CreateOwner(owner2);// invalid owner will not be created
+            var result1 = await ownerService.CreateOwner(owner2);
             Console.WriteLine(
                 $"Create Owner: {(result.IsSuccess ? $"Success: {result.Value}" : result.Error)} \n");
 
@@ -167,7 +170,7 @@ class Program
                 Type = PropertyType.DetachedHouse
             };
 
-            var result = await propertyService.CreateProperty(property, new List<string> { "55566677788", "VAT123456789" });
+            var result = await propertyService.CreateProperty(property, new List<string> { "55566677788", "12345678901" });
             Console.WriteLine($"Create Property: {(result.IsSuccess ? result.Value : result.Error)}\n");
         }
 
@@ -181,6 +184,7 @@ class Program
             else
             {
                 Console.WriteLine($"Get Property: {result.Error}\n");
+                Console.WriteLine("for pull ");
             }
         }
 

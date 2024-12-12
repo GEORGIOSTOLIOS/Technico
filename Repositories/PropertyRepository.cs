@@ -16,12 +16,15 @@ public class PropertyRepository:IPropertyRepository
 
     public async Task<List<Property>> GetProperties()
     {
-        return await _context.Properties.OrderBy(p => p.YearOfConstruction).ToListAsync();
+        return await _context.Properties.
+            Include(p => p.Owners).
+            OrderBy(p => p.YearOfConstruction).ToListAsync();
     }
 
     public async Task<Property?> GetProperty(int id)
     {
-        return await _context.Properties.Where(p => p.Id == id).FirstOrDefaultAsync();
+        return await _context.Properties.Where(p => p.Id == id).
+            Include(p => p.Owners).FirstOrDefaultAsync();
     }
     
     public async Task<bool> PropertyExists(int id)

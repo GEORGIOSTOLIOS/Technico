@@ -21,7 +21,7 @@ public class RepairServiceImpl: IRepairService
 
     public async Task<Result<RepairResponse>> CreateRepair(Repair repair, Owner owner)
     {   if (!(await _repairValidator.ValidateAsync(repair)).IsValid)
-        {
+        {   Console.WriteLine("test for pull request");
             return Result.Failure<RepairResponse>("Invalid input");
         }
         

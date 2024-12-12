@@ -6,9 +6,7 @@ namespace Technico.Models;
 public class Repair
 {
     public int Id { get; set; }
-    
     public RepairType Type { get; set; }
-    
     public DateTime DateTime { get; set; }
     
     [MaxLength(500)] 

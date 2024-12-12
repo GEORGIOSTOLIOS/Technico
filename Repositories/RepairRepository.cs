@@ -17,12 +17,13 @@ public class RepairRepository: IRepairRepository
     
     public async Task<List<Repair>> GetRepairs()
     {
-        return await _context.Repairs.OrderBy(r => r.DateTime).ToListAsync();
+        return await _context.Repairs.OrderBy(r => r.DateTime).Include(r => r.Owner).ToListAsync();
     }
 
     public async Task<Repair?> GetRepair(int id)
     {
-        return await _context.Repairs.Where(r => r.Id == id).FirstOrDefaultAsync();
+        return await _context.Repairs.Where(r => r.Id == id).
+            Include(r => r.Owner).FirstOrDefaultAsync();
     }
 
     public async Task<bool> RepairExists(int id)
